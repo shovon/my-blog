@@ -25,14 +25,18 @@ func main() {
 	router := chi.NewRouter()
 
 	router.Get("/.well-known/webfinger", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(501)
+		w.WriteHeader(http.StatusNotImplemented)
 		w.Write([]byte("Not yet implemented"))
 	})
 
 	router.Get("/", ToHandlerFunc(AcceptsHandler{
 		ActivityStreams20(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotImplemented)
+			w.Write([]byte("Not yet implemnented"))
 		})),
 		All(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotImplemented)
+			w.Write([]byte("Welcome to my site!"))
 		})),
 	}))
 

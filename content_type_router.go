@@ -22,4 +22,7 @@ func (c AcceptsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+
+	w.WriteHeader(http.StatusNotAcceptable)
+	w.Write([]byte("Failed to negotiate a valid content type"))
 }

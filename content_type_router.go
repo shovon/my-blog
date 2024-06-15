@@ -1,25 +1,38 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	contentnegotiation "gitlab.com/jamietanna/content-negotiation-go"
 )
 
 type NegotiatorHandler struct {
-	Negotiator contentnegotiation.Negotiator
-	Handler    http.Handler
+	Types   []string
+	Handler http.Handler
 }
 
-type AcceptsHandler []NegotiatorHandler
+// ExactAcceptHandler is an opinionated handler that only handles HTTP reqeuests
+// where the
+type ExactAcceptHandler []NegotiatorHandler
 
-var _ http.Handler = AcceptsHandler{}
+var _ http.Handler = ExactAcceptHandler{}
 
-func (c AcceptsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func deriveMediaTypeString(mt contentnegotiation.MediaType) string {
+	mts := mt.GetType() + "/" + mt.GetSubType()
+	return mts
+}
+
+func (c ExactAcceptHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, ch := range c {
-		if IsAcceptable(ch.Negotiator, r.Header.Get("Accepts")) {
-			ch.Handler.ServeHTTP(w, r)
-			break
+		negotiator := contentnegotiation.NewNegotiator(ch.Types...)
+		_, client, _ := negotiator.Negotiate(r.Header.Get("Accept"))
+		for _, el := range ch.Types {
+			fmt.Println(deriveMediaTypeString(client), el)
+			if deriveMediaTypeString(client) == el {
+				ch.Handler.ServeHTTP(w, r)
+				return
+			}
 		}
 	}
 

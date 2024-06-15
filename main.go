@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sus/config"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -29,10 +30,21 @@ func NotImplemented(subject string) http.HandlerFunc {
 	}
 }
 
+func getURL(path string) string {
+	protocol := "https"
+	if !config.IsSecure() {
+		protocol = "http"
+	}
+
+	return fmt.Sprintf("%s://%s%s", protocol, config.Host(), path)
+}
+
 func main() {
 	router := chi.NewRouter()
 
-	router.Get("/.well-known/webfinger", NotImplemented("Webfinger endpoint"))
+	router.Get("/.well-known/webfinger", func(w http.ResponseWriter, r *http.Request) {
+
+	})
 
 	router.Get("/", ToHandlerFunc(ExactAcceptHandler{
 		ActivityStreams20(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -41,14 +53,14 @@ func main() {
 					"https://www.w3.org/ns/activitystreams",
 					"https://w3id.org/security/v1",
 				},
-				"id":                "https://source.example.com",
+				"id":                getURL(""),
 				"type":              "Person",
-				"inbox":             "https://sources.example.com/inbox",
-				"outbox":            "https://sources.example.com/outbox",
-				"following":         "https://sources.example.com/following",
-				"followers":         "https://sources.example.com/followers",
-				"liked":             "https://sources.example.com/liked",
-				"preferredUsername": "actor",
+				"inbox":             getURL("/inbox"),
+				"outbox":            getURL("/outbox"),
+				"following":         getURL("/following"),
+				"followers":         getURL("/followers"),
+				"liked":             getURL("/liked"),
+				"preferredUsername": config.PreferredUsername(), // Include name here.
 				// "publicKey": map[string]any{
 				// 	"id":           "https://source.example.com#main-key",
 				// 	"owner":        "https://source.example.com",

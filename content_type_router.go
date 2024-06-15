@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	contentnegotiation "gitlab.com/jamietanna/content-negotiation-go"
@@ -28,7 +27,6 @@ func (c ExactAcceptHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		negotiator := contentnegotiation.NewNegotiator(ch.Types...)
 		_, client, _ := negotiator.Negotiate(r.Header.Get("Accept"))
 		for _, el := range ch.Types {
-			fmt.Println(deriveMediaTypeString(client), el)
 			if deriveMediaTypeString(client) == el {
 				ch.Handler.ServeHTTP(w, r)
 				return

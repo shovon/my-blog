@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"sus/config"
+	"sus/rsahelpers"
+	"sus/rsaservice"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -48,6 +50,20 @@ func main() {
 
 	router.Get("/", ToHandlerFunc(ExactAcceptHandler{
 		ActivityStreams20(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			key, err := rsaservice.GetKey()
+			if err != nil || key == nil {
+				w.WriteHeader(500)
+				w.Write([]byte("Error occurred"))
+				return
+			}
+
+			str, err := rsahelpers.PublicKeyToPKIXString(&key.PublicKey)
+			if err != nil || key == nil {
+				w.WriteHeader(500)
+				w.Write([]byte("Error occurred"))
+				return
+			}
+
 			j := map[string]any{
 				"@context": []string{
 					"https://www.w3.org/ns/activitystreams",
@@ -61,11 +77,11 @@ func main() {
 				"followers":         getURL("/followers"),
 				"liked":             getURL("/liked"),
 				"preferredUsername": config.PreferredUsername(), // Include name here.
-				// "publicKey": map[string]any{
-				// 	"id":           "https://source.example.com#main-key",
-				// 	"owner":        "https://source.example.com",
-				// 	"publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArLEIhmSM4UXoUbh/UNri\nOmsruokiG4GU0jz7R/rZ3lC0kGEMEJpk7x8hLEtg0DhV9DW3jPOsPi1KvLRkTgiE\nCSEEG+ULqZ3/WTZR3VX+/Tb1huemD2rBZkv9vpL+3qSRuFTvcMumonVuJ6rtT3pG\nTbsXlYmp2n7VkbPQPz6Wy3R7YeGmdNxtRiccwrpeovc+kCCoY/t467cK1ON+FDrq\nT/xgNhG2jPfotMF3ixk5/EQuakKEz2YQP4duD6D86QciZQWjw5YMv96NxV6D24CV\nn8HxEcxM5AfWvqbNLpEvi6UBUVCnM4IzJTlboPBO4tUPSu01YDqb8jbTC0f6rOCZ\nOQIDAQAB\n-----END PUBLIC KEY-----\n",
-				// },
+				"publicKey": map[string]any{
+					"id":           getURL("#main-key"),
+					"owner":        getURL(""),
+					"publicKeyPem": str,
+				},
 			}
 			w.Header().Add("Content-Type", "application/activity+json")
 			json.NewEncoder(w).Encode(j)

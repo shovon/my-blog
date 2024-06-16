@@ -8,7 +8,11 @@ import (
 )
 
 type FollowersManagerSQLite struct {
-	DB *sql.DB
+	db *sql.DB
+}
+
+func NewFollowersManagerSQLite(db *sql.DB) FollowersManagerSQLite {
+	return FollowersManagerSQLite{db: db}
 }
 
 var _ followersport.FollowersManager = FollowersManagerSQLite{}

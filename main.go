@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"sus/config"
 	"sus/rsahelpers"
-	"sus/rsaservice"
+	"sus/services/rsaservice"
 
 	"sus/prettyld"
 

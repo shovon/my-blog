@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/getfederated/prettyld"
+	"sus/prettyld"
 )
 
 type Nilable[T any] struct {

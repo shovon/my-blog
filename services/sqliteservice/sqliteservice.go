@@ -28,6 +28,54 @@ func migrations() []string {
 			when_followed timestamp not null default current_timestamp
 		);
 		`,
+		`
+		create table followers_new (
+			id integer primary key autoincrement,
+			follower_id_iri text not null,
+			when_followed timestamp not null default current_timestamp
+		);
+		create table followings_new (
+			id integer primary key autoincrement,
+			following_id_iri text not null,
+			when_followed timestamp not null default current_timestamp
+		);
+
+		insert into followers_new (id, follower_id_iri, when_followed)
+		select id, follower_id_iri, when_followed from followers;
+
+		insert into followings_new (id, following_id_iri, when_followed)
+		select id, following_id_iri, when_followed from followings;
+
+		drop table followers;
+		drop table followings;
+
+		alter table followers_new rename to followers;
+		alter table followings_new rename to following;
+		`,
+		`
+		create table followers_new (
+			id integer primary key autoincrement,
+			follower_id_iri text unique not null,
+			when_followed timestamp not null default current_timestamp
+		);
+		create table followings_new (
+			id integer primary key autoincrement,
+			following_id_iri text unique not null,
+			when_followed timestamp not null default current_timestamp
+		);
+
+		insert into followers_new (id, follower_id_iri, when_followed)
+		select id, follower_id_iri, when_followed from followers;
+
+		insert into followings_new (id, following_id_iri, when_followed)
+		select id, following_id_iri, when_followed from following;
+
+		drop table followers;
+		drop table following;
+
+		alter table followers_new rename to followers;
+		alter table followings_new rename to following;
+		`,
 	}
 }
 

@@ -43,6 +43,9 @@ func (f FollowersManagerSQLite) SaveFollower(followerID string) error {
 	return nil
 }
 
-func (f FollowersManagerSQLite) GetFollowers(lastFollowerID nilable.Nilable[string]) ([]string, error) {
+func (f FollowersManagerSQLite) GetFollowers(
+	lastFollowerID nilable.Nilable[string],
+	queryParameters followersport.QueryParameters,
+) ([]string, error) {
 	return nil, errors.New("not yet implemented")
 }

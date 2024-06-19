@@ -8,6 +8,7 @@ import (
 	"sus/config"
 	"sus/rsahelpers"
 	"sus/services/rsaservice"
+	"sus/services/sqliteservice"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -95,7 +96,14 @@ func main() {
 		})),
 	}))
 
-	router.Post("/inbox", ToHandlerFunc(Inbox(followersadapter.NewFollowersManagerSQLite())))
+	sqliteservice.GetWriteableDB()
+
+	router.Post("/inbox", ToHandlerFunc(Inbox(
+		followersadapter.NewFollowersManagerSQLite(
+			sqliteservice.GetWriteableDB(),
+			sqliteservice.GetReadableDB(),
+		),
+	)))
 	router.Post("/outbox", NotImplemented("Outbox"))
 
 	router.Get("/followers", NotImplemented("Followers"))
@@ -115,7 +123,7 @@ func main() {
 				}
 
 				str, err := rsahelpers.PublicKeyToPKIXString(&key.PublicKey)
-				if err != nil || key == nil {
+				if err != nil {
 					w.WriteHeader(500)
 					w.Write([]byte("Error occurred"))
 					return

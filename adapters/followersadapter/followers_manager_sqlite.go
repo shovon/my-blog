@@ -5,14 +5,19 @@ import (
 	"errors"
 	"sus/nilable"
 	"sus/ports/followersport"
+	"sus/services/sqliteservice"
 )
 
 type FollowersManagerSQLite struct {
-	db *sql.DB
+	writer *sql.DB
+	reader *sql.DB
 }
 
-func NewFollowersManagerSQLite(db *sql.DB) FollowersManagerSQLite {
-	return FollowersManagerSQLite{db: db}
+func NewFollowersManagerSQLite(
+	writer sqliteservice.Writer,
+	reader sqliteservice.Reader,
+) FollowersManagerSQLite {
+	return FollowersManagerSQLite{writer: writer, reader: reader}
 }
 
 var _ followersport.FollowersManager = FollowersManagerSQLite{}

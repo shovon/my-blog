@@ -21,6 +21,13 @@ func migrations() []string {
 			when_followed timestamp not null default current_timestamp
 		);
 		`,
+		`
+		create table followings (
+			id integer primary key autoincrement,
+			following_id_iri text not null,
+			when_followed timestamp not null default current_timestamp
+		);
+		`,
 	}
 }
 
@@ -101,22 +108,32 @@ func init() {
 		when_run timestamp not null default current_timestamp
 	);
 	`)
+	fmt.Println("Idempotently created a new table")
 	if err != nil {
 		panic(err)
 	}
 
 	var lastMigrationId int
 
-	row := r.QueryRow("select id from migrations")
+	row := r.QueryRow("select id from migrations order by id desc;")
 	if err := row.Scan(&lastMigrationId); err != nil && err != sql.ErrNoRows {
 		panic(err)
 	}
 
+	fmt.Printf("Last migration ID: %d\n", lastMigrationId)
+
 	m := migrations()
-	for i := lastMigrationId; i < lastMigrationId; i++ {
-		_, err := w.Exec(m[i])
+	for i := lastMigrationId; i < len(m); i++ {
+		tx, err := w.Begin()
 		if err != nil {
 			panic(err)
 		}
+		_, err = tx.Exec(m[i])
+		if err != nil {
+			panic(err)
+		}
+
+		tx.Exec("insert into migrations default values;")
+		tx.Commit()
 	}
 }

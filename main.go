@@ -155,6 +155,5 @@ func main() {
 	addr := ":8081"
 
 	logger.Logger().Info("Server listening", zap.String("address", addr))
-	fmt.Printf("Server listening on %s\n", addr)
 	http.ListenAndServe(addr, router)
 }

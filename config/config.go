@@ -25,7 +25,7 @@ func init() {
 	preferredUsername = p
 }
 
-// Host represents the host and optional oprt (suffixed by :PORT_NUMBER).
+// Host represents the host and optional port (suffixed by :PORT_NUMBER).
 func Host() string {
 	return host
 }

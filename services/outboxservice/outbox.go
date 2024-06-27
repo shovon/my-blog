@@ -1,0 +1,3 @@
+package outboxservice
+
+func Send() {}

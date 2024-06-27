@@ -167,8 +167,6 @@ func init() {
 		panic(err)
 	}
 
-	fmt.Printf("Last migration ID: %d\n", lastMigrationId)
-
 	m := migrations()
 	for i := lastMigrationId; i < len(m); i++ {
 		tx, err := w.Begin()

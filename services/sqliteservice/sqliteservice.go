@@ -156,7 +156,6 @@ func init() {
 		when_run timestamp not null default current_timestamp
 	);
 	`)
-	fmt.Println("Idempotently created a new table")
 	if err != nil {
 		panic(err)
 	}

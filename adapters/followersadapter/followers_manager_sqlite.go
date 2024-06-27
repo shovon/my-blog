@@ -6,6 +6,7 @@ import (
 	"sus/nilable"
 	"sus/ports/followersport"
 	"sus/services/sqliteservice"
+	"time"
 
 	"github.com/mattn/go-sqlite3"
 )
@@ -46,6 +47,39 @@ func (f FollowersManagerSQLite) SaveFollower(followerID string) error {
 func (f FollowersManagerSQLite) GetFollowers(
 	lastFollowerID nilable.Nilable[string],
 	queryParameters followersport.QueryParameters,
-) ([]string, error) {
-	return nil, errors.New("not yet implemented")
+) ([]followersport.FollowerMeta, error) {
+	rows, err := f.reader.Query(`
+		select
+			id,
+			follower_id_iri,
+			when_followed
+		from followers
+		where $2 < id and id < $3
+		order by id desc limit $1;
+	`,
+		queryParameters.Limit.ValueOrDefault(40),
+		queryParameters.Limit.ValueOrDefault(0),
+		queryParameters.Limit.ValueOrDefault(9223372036854775807))
+	if err != nil {
+		return nil, err
+	}
+
+	followers := []followersport.FollowerMeta{}
+
+	for rows.Next() {
+		var id string
+		var followerIDIRI string
+		var whenFollowed time.Time
+		if err := rows.Scan(&id, &followerIDIRI, &whenFollowed); err != nil {
+			return nil, err
+		}
+
+		followers = append(followers, followersport.FollowerMeta{
+			ID:            id,
+			FollowerIDIRI: followerIDIRI,
+			WhenFollowed:  whenFollowed,
+		})
+	}
+
+	return followers, nil
 }

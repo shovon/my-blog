@@ -6,11 +6,13 @@ import (
 	"net/http"
 	"sus/adapters/followersadapter"
 	"sus/config"
+	"sus/logger"
 	"sus/rsahelpers"
 	"sus/services/rsaservice"
 	"sus/services/sqliteservice"
 
 	"github.com/go-chi/chi/v5"
+	"go.uber.org/zap"
 )
 
 func All(handler http.Handler) NegotiatorHandler {
@@ -84,7 +86,6 @@ func main() {
 					"owner":        getURL(""),
 					"publicKeyPem": str,
 				},
-
 				// TODO: add a shared inbox, for certain Mastodon implementations that
 				//   expect it.
 			}
@@ -152,6 +153,8 @@ func main() {
 	})
 
 	addr := ":8081"
+
+	logger.Logger().Info("Server listening", zap.String("address", addr))
 	fmt.Printf("Server listening on %s\n", addr)
 	http.ListenAndServe(addr, router)
 }
